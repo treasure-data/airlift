@@ -1,3 +1,99 @@
+0.196
+
+- Do not start JmxAgent by default.
+
+0.195
+
+- Only forbid binder.install() for ConfigurationAwareModule.
+- Publish Maven BOM.
+
+0.194
+
+- Fix DecayTDigest.rescale() handling of max of means.
+- Fix potential IndexOutOfBounds in t-digest.
+- Forbid direct binder.install() in AbstractConfigurationAwareModule.
+- Add CacheStatsMBean for reporting Guava cache statistics.
+- Add utility combine() method for ConfigurationAwareModule.
+- Add support for setting process name on Linux aarch64.
+- Allow passing additional JVM options in launcher.
+- Clean up logging in LifeCycleManager.
+
+0.193
+
+- Move HTTP event client to new event-http module.
+- Remove deprecated NullEventModule.
+- Present explicit error messaging from launcher.py when Java is not installed.
+- Update to Jetty 9.4.27.v20200227.
+
+0.192
+
+- Update to Jetty 9.4.26.v20200117.
+
+0.191
+
+- Do not require keystore password for HTTPS.
+- Allow trailing slash in discovery URI configuration.
+- Require host to be set in HttpUriBuilder.
+
+0.190
+
+- Allow using servlet filters for static resources.
+
+0.189
+
+- Move AsyncResponseHandler to JAX-RS module.
+
+0.188
+
+- Fix a Bootstrap regression that forced strict config mode.
+- Fix IndexOutOfBounds when updating t-digest after copy.
+- Fix mbeans page access over HTTPS.
+- Limit total size of server.log.
+- Remove status message support from HTTP client.
+- Update to Jetty 9.4.20.v20190813.
+
+0.187
+
+- Fix thread safety for snapshot() in DecayCounter.
+- Require keystore configuration for HTTP server when HTTPS is enabled.
+- Limit total size of HTTP request log.
+- Improve HLL merge performance.
+- Add support for PEM encoded public keys in PKCS #1 format.
+- Add method for duplicating a Distribution object.
+- Add TestingClock.
+
+0.186
+
+- Allow setting config values from environment variables.
+
+0.185
+
+- Fix a bug introduced in 0.184 causing Enum's fromString(String) method to be
+  ignored.
+- Convert to boolean strictly in configuration. For example "yes" value
+  will now be rejected, previously it would be parsed as false.
+- Trim whitespace when loading configuration.
+- When a class defines fromString(String) method, valueOf(String) method or
+  a String-parameterized constructor, attempt the conversion using only first
+  available conversion method.
+- Validate placement of bean validation annotation in configuration classes.
+- Add TDigest and DecayTDigest data structures.
+- Use t-digest for Distribution and TimeDistribution.
+
+0.184
+
+- Match enums case-insensitively in configuration.
+- Access logging levels finer than FINE.
+- Record complete URI in HTTP request log.
+- Handle exceptions from @PreDestroy methods.
+- Remove checked exceptions from LifeCycleManager methods.
+- Remove checked exceptions from Bootstrap.initialize().
+- Fix @JsonSubTypes support for JsonCodec.
+- Allow using localhost for SPNEGO canonical service name in HTTP client.
+- Add support for printing Optional values in configuration.
+- Use "----" for printing null values in configuration.
+- Remove ConfigurationUtils testing utility.
+
 0.183
 
 - Fix rare failure when deserializing QuantileDigest instances
