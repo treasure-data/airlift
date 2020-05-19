@@ -330,6 +330,13 @@
                 <version>${dep.jetty.version}</version>
             </dependency>
 
+            <!-- jsr 250 -->
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>1.3.2</version>
+            </dependency>
+
             <!-- jersey -->
             <dependency>
                 <groupId>javax.xml.bind</groupId>
