@@ -4,7 +4,7 @@
 
     <artifactId>airlift</artifactId>
     <packaging>pom</packaging>
-    <version>0.183.1</version>
+    <version>0.183.2</version>
 
     <name>airlift</name>
     <description>Airlift</description>
