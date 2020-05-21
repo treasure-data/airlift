@@ -3,6 +3,7 @@
 import errno
 import os
 import platform
+import subprocess
 import sys
 import traceback
 
@@ -68,16 +69,21 @@ def try_lock(f):
         return False
 
 
-def open_read_write(f, mode):
+def open_pidfile(f, mode):
     """Open file in read/write mode (without truncating it)"""
-    return os.fdopen(os.open(f, O_RDWR | O_CREAT, mode), 'r+')
+    fd = os.open(f, O_RDWR | O_CREAT, mode)
+    if hasattr(os, 'set_inheritable'):
+        # See https://docs.python.org/3/library/os.html#inheritance-of-file-descriptors
+        # Since Python 3.4
+        os.set_inheritable(fd, True)
+    return os.fdopen(fd, 'r+')
 
 
 class Process:
     def __init__(self, path):
         makedirs(dirname(path))
         self.path = path
-        self.pid_file = open_read_write(path, 0o600)
+        self.pid_file = open_pidfile(path, 0o600)
         self.refresh()
 
     def refresh(self):
@@ -189,6 +195,12 @@ def build_java_execution(options, daemon):
     if options.log_levels_set and not exists(options.log_levels):
         raise Exception('Log levels file is missing: %s' % options.log_levels)
 
+    with open(os.devnull, 'w') as devnull:
+        try:
+            subprocess.check_call(['java', '-version'], stdout=devnull, stderr=devnull)
+        except (OSError, subprocess.CalledProcessError):
+            raise Exception('Java is not installed')
+
     properties = options.properties.copy()
 
     if exists(options.log_levels):
@@ -212,7 +224,7 @@ def build_java_execution(options, daemon):
     classpath = pathjoin(options.install_path, 'lib', '*')
 
     command = ['java', '-cp', classpath]
-    command += jvm_properties + system_properties
+    command += jvm_properties + options.jvm_options + system_properties
     command += [main_class]
 
     if options.verbose:
@@ -221,7 +233,7 @@ def build_java_execution(options, daemon):
 
     env = os.environ.copy()
 
-    # set process name: https://github.com/electrum/procname
+    # set process name: https://github.com/airlift/procname
     process_name = launcher_properties.get('process-name', '')
     if len(process_name) > 0:
         system = platform.system() + '-' + platform.machine()
@@ -270,11 +282,6 @@ def start(process, options):
         process.write_pid(pid)
         print('Started as %s' % pid)
         return
-
-    if hasattr(os, "set_inheritable"):
-        # See https://docs.python.org/3/library/os.html#inheritance-of-file-descriptors
-        # Since Python 3.4
-        os.set_inheritable(process.pid_file.fileno(), True)
 
     os.setsid()
 
@@ -356,6 +363,7 @@ def create_parser():
     parser.add_option('--pid-file', metavar='FILE', help='Defaults to DATA_DIR/var/run/launcher.pid')
     parser.add_option('--launcher-log-file', metavar='FILE', help='Defaults to DATA_DIR/var/log/launcher.log (only in daemon mode)')
     parser.add_option('--server-log-file', metavar='FILE', help='Defaults to DATA_DIR/var/log/server.log (only in daemon mode)')
+    parser.add_option('-J', action='append', metavar='OPT', dest='jvm_options', help='Set a JVM option')
     parser.add_option('-D', action='append', metavar='NAME=VALUE', dest='properties', help='Set a Java system property')
     return parser
 
@@ -418,6 +426,7 @@ def main():
     o.config_path = realpath(options.config or pathjoin(o.etc_dir, 'config.properties'))
     o.log_levels = realpath(options.log_levels_file or pathjoin(o.etc_dir, 'log.properties'))
     o.log_levels_set = bool(options.log_levels_file)
+    o.jvm_options = options.jvm_options or []
 
     if options.node_config and not exists(o.node_config):
         parser.error('Node config file is missing: %s' % o.node_config)
